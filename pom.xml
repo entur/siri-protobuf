@@ -20,7 +20,7 @@
     <artifactId>siri-protobuf</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>Protobuf descriptor files for NeTEx</name>
+    <name>Protobuf descriptor files for SIRI</name>
     <description>Generates protobuf descriptor files based on SIRI xsd</description>
     <url>https://github.com/entur/siri-protobuf</url>
     <licenses>
