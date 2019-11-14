@@ -16,7 +16,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>no.entur</groupId>
+    <groupId>org.entur</groupId>
     <artifactId>siri-protobuf</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -41,22 +41,20 @@
     </developers>
 
     <properties>
-        <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
-        <pgv.gen_version>0.1.0-SNAPSHOT</pgv.gen_version>
-
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <proto-backwards-compatibility.version>1.0.2</proto-backwards-compatibility.version>
+        <pgv.version>0.2.0</pgv.version>
+        <proto.version>3.9.0</proto.version>
+
+        <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
+        <proto-backwards-compatibility.version>1.0.5-lockdir</proto-backwards-compatibility.version>
         <os-maven-plugin.version>1.6.1</os-maven-plugin.version>
-
-         <proto.version>3.6.1</proto.version>
-
-        <envoyproxy.version>0.1.0-SNAPSHOT</envoyproxy.version>
     </properties>
+
+
 
     <scm>
         <connection>scm:git:ssh://git@github.com/entur/siri-protobuf.git</connection>
@@ -79,40 +77,36 @@
     </distributionManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${proto.version}</version>
+            <!--<scope>provided</scope>-->
         </dependency>
-
 
         <dependency>
             <groupId>io.envoyproxy.protoc-gen-validate</groupId>
             <artifactId>pgv-java-stub</artifactId>
 
-            <version>${envoyproxy.version}</version>
+            <version>${pgv.version}</version>
+            <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>com.google.re2j</groupId>
             <artifactId>re2j</artifactId>
             <version>1.2</version>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>
-        <extensions>
-            <!-- maven3 will need wagon-ssh extension in order to be able to release,
-            Using external variant in order to retain keys, etc -->
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh-external</artifactId>
-                <version>2.10</version>
-            </extension>
-        </extensions>
         <plugins>
+            <plugin>
+                <groupId>de.qaware.maven</groupId>
+                <artifactId>go-offline-maven-plugin</artifactId>
+                <version>1.2.0</version>
+            </plugin>
 
             <plugin>
                 <groupId>kr.motd.maven</groupId>
@@ -172,7 +166,7 @@
                 <version>1.0-SNAPSHOT</version>
                 <configuration>
                     <configFile>siri_to_protobuf_config.yaml</configFile>
-                    <xsdFile>resources/siri-2.0/xsd/siri.xsd</xsdFile>
+                    <xsdFile>src/main/resources/siri-2.0/xsd/siri.xsd</xsdFile>
                 </configuration>
                 <executions>
                     <execution>
@@ -185,33 +179,6 @@
 
             </plugin>
 
-            <plugin>
-                <groupId>org.xolstice.maven.plugins</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-                <version>${protobuf-maven-plugin.version}</version>
-
-                <configuration>
-                    <protoSourceRoot>${project.build.directory}/proto</protoSourceRoot>
-                    <attachProtoSources>false</attachProtoSources>
-                    <protocArtifact>com.google.protobuf:protoc:${proto.version}:exe:${os.detected.classifier}
-                    </protocArtifact>
-                    <pluginParameter>lang=java</pluginParameter>
-                    <pluginId>java-pgv</pluginId>
-                    <pluginArtifact>
-                        io.envoyproxy.protoc-gen-validate:protoc-gen-validate:${pgv.gen_version}:exe:${os.detected.classifier}
-                    </pluginArtifact>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <goals>
-                            <goal>compile-custom</goal>
-                            <goal>compile</goal>
-                        </goals>
-                        <phase>process-resources</phase>
-                    </execution>
-                </executions>
-            </plugin>
 
             <plugin>
                 <groupId>com.salesforce.servicelibs</groupId>
@@ -219,9 +186,12 @@
                 <version>${proto-backwards-compatibility.version}</version>
                 <configuration>
                     <protoSourceRoot>target/proto</protoSourceRoot>
+                    <lockDir>${basedir}</lockDir>
+                    <options>--debug=true</options>
                 </configuration>
                 <executions>
                     <execution>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>backwards-compatibility-check</goal>
                         </goals>
@@ -232,36 +202,14 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.2</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>UTF-8</encoding>
-                    <compilerArgs>
-                        <!--arg>-Werror</arg-->
-                        <arg>-Xlint:all</arg>
-                    </compilerArgs>
+                    <classesDirectory>target/classes</classesDirectory>
+                   <!--<includes>-->
+                       <!--<include>**/*.proto</include>-->
+                   <!--</includes>-->
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-                <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <useReleaseProfile>false</useReleaseProfile>
-                    <releaseProfiles>release,sign,!noPublicDeploy</releaseProfiles>
-                    <goals>deploy</goals>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.scm</groupId>
-                        <artifactId>maven-scm-provider-gitexe</artifactId>
-                        <version>1.9.2</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>
@@ -269,115 +217,73 @@
 
     <profiles>
         <profile>
-            <id>doclint-java8-disable</id>
+            <id>protoc</id>
             <activation>
-                <jdk>[1.8,)</jdk>
-            </activation>
-            <properties>
-                <javadoc.opts>-Xdoclint:none</javadoc.opts>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>sign</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-plugin</artifactId>
-                            <version>2.22.1</version>
-                            <configuration>
-                                <useSystemClassLoader>false</useSystemClassLoader>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.xolstice.maven.plugins</groupId>
+                        <artifactId>protobuf-maven-plugin</artifactId>
+                        <version>${protobuf-maven-plugin.version}</version>
+
+                        <configuration>
+                            <protoSourceRoot>${project.build.directory}/proto</protoSourceRoot>
+                            <attachProtoSources>false</attachProtoSources>
+                            <protocArtifact>com.google.protobuf:protoc:${proto.version}:exe:${os.detected.classifier}
+                            </protocArtifact>
+                            <pluginParameter>lang=java</pluginParameter>
+                            <pluginId>java-pgv</pluginId>
+                            <pluginArtifact>
+                                io.envoyproxy.protoc-gen-validate:protoc-gen-validate:${pgv.version}:exe:${os.detected.classifier}
+                            </pluginArtifact>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>compile</id>
+                                <goals>
+                                    <goal>compile-custom</goal>
+                                    <goal>compile</goal>
+                                </goals>
+                                <phase>process-resources</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>compile</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.22.0</version>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.4</version>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.8.1</version>
                         <configuration>
-                            <additionalparam>${javadoc.opts}</additionalparam>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.8</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <!-- Set this to true and the release will automatically proceed and sync to Central Repository will follow  -->
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                            <source>1.8</source>
+                            <target>1.8</target>
+                            <fork>true</fork>
+                            <meminitial>2048m</meminitial>
+                            <maxmem>3072m</maxmem>
+                            <encoding>UTF-8</encoding>
+                            <compilerArgs>
+                                <!--arg>-Werror</arg-->
+                                <arg>-Xlint:all</arg>
+                            </compilerArgs>
                         </configuration>
                     </plugin>
+
                 </plugins>
             </build>
         </profile>
 
-        <profile>
-            <id>release</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <distributionManagement>
-                <!--snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository-->
-                <repository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
-        </profile>
-    </profiles>
 
+    </profiles>
 
 </project>

@@ -1,23 +1,27 @@
 outputFilename:
 outputDirectory: target/proto
+forceProtoPackage:
 includeMessageDocs: true
 includeFieldDocs: true
 includeSourceLocationInDoc: true
-inheritanceToComposition: true
-includeValidationRules: false
 customImports:
   - google/protobuf/timestamp.proto
   - google/protobuf/duration.proto
+  - google/protobuf/any.proto
 customImportLocations:
   - target/proto_deps
 customTypeMappings:
-  ^duration$ : google.protobuf.Duration
-  ^dateTime$ : google.protobuf.Timestamp
-  ^time$: google.protobuf.Timestamp
-  ^timestamp$: google.protobuf.Timestamp
-
+  ^duration$  : google.protobuf.Duration
+  ^dateTime$  : google.protobuf.Timestamp
+  ^time$      : google.protobuf.Timestamp
+  ^timestamp$ : google.protobuf.Timestamp
+  ^anyType$   : google.protobuf.Any
+options:
+  java_multiple_files : true
 customNameMappings:
-
+#  ^(.*)_VersionedChild$ : $1
+#  ^(.*)Structure$ : $1
+#  ^(.*)Enumeration$ : $1
 ignoreOutputFields:
   - uk.org.ifopt.www.ifopt/PointProjectionStructure/Coordinates
   - uk.org.ifopt.www.ifopt/PlaceEquipmentStructure/EquipmentName
@@ -26,6 +30,14 @@ ignoreOutputFields:
   - uk.org.ifopt.www.ifopt/LocalServiceStructure/EquipmentName
   - uk.org.ifopt.www.ifopt/FeatureRefsType/FeatureRef
   - eu.datex2.schema._2_0rc1._2_0/TpegDescriptor/descriptor
-
-options:
-  java_multiple_files : true
+  - eu.datex2.schema._2_0rc1._2_0/TpegAreaDescriptor/descriptor
+  - eu.datex2.schema._2_0rc1._2_0/TpegPointDescriptor/descriptor
+  - eu.datex2.schema._2_0rc1._2_0/TpegIlcPointDescriptor/descriptor
+  - eu.datex2.schema._2_0rc1._2_0/TpegOtherPointDescriptor/descriptor
+  - eu.datex2.schema._2_0rc1._2_0/TpegJunctionPointDescriptor/descriptor
+  - uk.org.siri.www.siri/FacilityStructure/Features
+#  - uk.org.siri.www.siri/UnknownExtensionsErrorStructure/connectionLinksDelivery
+#  - uk.org.ifopt.www.acsb/AccessibilityLimitationStructure/Extensions
+#  - uk.org.ifopt.www.acsb/AccessibilityLimitationStructure/ValidityCondition
+#  - uk.org.ifopt.www.acsb/AccessibilityAssessmentStructure/Extensions
+#  - package.name/MessageName/FieldName
