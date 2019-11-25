@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.entur</groupId>
     <artifactId>siri-protobuf</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
 
     <name>Protobuf descriptor files for SIRI</name>
     <description>Generates protobuf descriptor files based on SIRI xsd</description>
@@ -69,11 +69,11 @@
     </organization>
 
     <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>entur</name>
-            <url>https://maven.pkg.github.com/entur/siri-protobuf</url>
-        </repository>
+        <!--<repository>-->
+            <!--<id>github</id>-->
+            <!--<name>entur</name>-->
+            <!--<url>https://maven.pkg.github.com/entur/siri-protobuf</url>-->
+        <!--</repository>-->
         <snapshotRepository>
             <id>snapshots</id>
             <name>entur2-snapshots</name>
